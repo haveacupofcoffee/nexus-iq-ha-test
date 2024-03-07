@@ -55,6 +55,12 @@ spec:
         - name: {{ .Release.Name }}-iq-server-container
           image: {{ include "nexus-iq-server-ha.iqServerImage" . }}
           imagePullPolicy: {{ .Values.iq_server.imagePullPolicy }}
+          command: [ "sh", "-c" ]
+          args:
+            - |
+              sleep 300
+              cd /opt/sonatype/nexus-iq-server
+              ./start.sh
           resources:
             requests:
               {{- if .Values.iq_server.resources.requests.cpu }}
@@ -222,10 +228,14 @@ spec:
       initContainers:
         - name: {{ .Release.Name }}-set-iq-persistence-ownership
           image: busybox:1.28
-          command:
-            - /bin/sh
-            - -c
-            - {{ .Values.iq_server.pvOwnershipOverride }}
+          command: [ "sh", "-c" ]
+          args:
+            - |
+              sleep 300
+              id
+              ls
+              ls -la
+              {{ .Values.iq_server.pvOwnershipOverride }}
           volumeMounts:
             - mountPath: {{ .Values.iq_server.config.clusterDirectory }}
               name: {{ .Release.Name }}-iq-server-pod-volume
